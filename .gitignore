@@ -1,0 +1,123 @@
+# ============================================================
+# PRIVATE — never publish
+# ------------------------------------------------------------
+# These files are intentionally withheld from the public
+# repository. The published source is provided for reference
+# only and is not a runnable build without them.
+# ============================================================
+background.js
+
+# Internal planning, specs and design notes
+docs/superpowers/
+
+# Internal business material — sales pitch and competitive strategy
+docs/QUICKAPPLY_PITCH.md
+docs/PLAN_BEAT_JOBRIGHT.md
+
+# Internal auto-apply orchestrator service
+apply-orchestrator/
+
+# Internal QA harness, live-tenant probes and debug scripts
+test-runner/
+
+# Ad-hoc analysis scripts over exported client recordings
+analyze.js
+analyze2.js
+mock_app.html
+
+# ============================================================
+# Client data & PII — never commit
+# ============================================================
+*.pdf
+*resume*
+*Resume*
+*step2.yml
+*step2.yaml
+*.snapshot.yml
+*.har
+# Root-level screenshots from live test runs (icons/ is kept)
+/*.png
+/*.jpg
+/*.jpeg
+quickapply-recordings-*.json
+quickapply-learning-*.json
+storage-*.json
+gh-trusted-log*.txt
+obsidian-vault/
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ============================================================
+# Build & Distribution
+# ============================================================
+dist/
+build/
+release/
+*.zip
+*.crx
+
+# ============================================================
+# Node / Package Managers
+# ============================================================
+node_modules/
+package-lock.json
+yarn.lock
+.npm/
+.yarn/
+
+# ============================================================
+# Test & Browser Artifacts
+# ============================================================
+.playwright-mcp/
+test-results/
+playwright-report/
+coverage/
+screenshots/
+*.out
+.*-userdata/
+.ext-id*.txt
+
+# ============================================================
+# Tooling caches
+# ============================================================
+graphify-out/
+.gitattributes
+.claude/
+.worktrees/
+
+# ============================================================
+# Logs
+# ============================================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================================
+# OS & Editor
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ============================================================
+# Temporary
+# ============================================================
+*.tmp
+*.temp
+~$*

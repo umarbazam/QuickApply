@@ -1,0 +1,184 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Job Analyzer Self-Tests</title>
+<style>body{font:14px monospace;padding:20px}.pass{color:green}.fail{color:red}h2{margin-top:30px}</style>
+</head><body>
+<h1>Job Analyzer Self-Tests</h1>
+<p>Open this file via the extension's web_accessible_resources OR inject the
+modules into a page that already has the extension running. Results stream below.</p>
+<div id="out"></div>
+<script>
+const out = document.getElementById('out');
+function ok(name)  { out.insertAdjacentHTML('beforeend', `<div class="pass">✓ ${name}</div>`); }
+function fail(name, why) { out.insertAdjacentHTML('beforeend', `<div class="fail">✗ ${name} — ${why}</div>`); }
+async function run() {
+    // === JdCache ===
+    out.insertAdjacentHTML('beforeend', '<h2>JdCache</h2>');
+    const cache = window.QuickApplyJdCache;
+    if (!cache) return fail('JdCache loaded', 'window.QuickApplyJdCache missing');
+    ok('JdCache loaded');
+
+    const jd = { jobKey: 'test:abc', url: 'http://x', extractedAt: new Date().toISOString(), title: 'T', descriptionText: 'D' };
+    await cache.put(jd);
+    const got = await cache.get('test:abc');
+    if (got && got.title === 'T') ok('put/get round-trip'); else fail('put/get round-trip', JSON.stringify(got));
+
+    await cache.putFitScores('test:abc', 'client-1', { titleScore: 80 });
+    const got2 = await cache.get('test:abc');
+    if (got2.fitScores?.['client-1']?.titleScore === 80) ok('putFitScores writes through'); else fail('putFitScores', JSON.stringify(got2));
+
+    await cache.evict('test:abc');
+    const got3 = await cache.get('test:abc');
+    if (got3 === null) ok('evict drops entry'); else fail('evict', JSON.stringify(got3));
+
+    // === FitMatcher hard params ===
+    out.insertAdjacentHTML('beforeend', '<h2>FitMatcher (hard)</h2>');
+    const fm = window.QuickApplyFitMatcher;
+    if (!fm) return fail('FitMatcher loaded', 'window.QuickApplyFitMatcher missing');
+    ok('FitMatcher loaded');
+
+    // Visa
+    const v1 = fm.scoreVisa({ visaText: '' }, { workAuthorization: 'US Citizen' });
+    if (v1.status === 'pass') ok('visa: citizen passes'); else fail('visa: citizen passes', v1.status);
+
+    const v2 = fm.scoreVisa({ visaText: 'we do not sponsor visas' }, { workAuthorization: 'Require Sponsorship' });
+    if (v2.status === 'fail') ok('visa: refusal text fails'); else fail('visa: refusal text', v2.status);
+
+    const v3 = fm.scoreVisa({ visaText: 'great team, fast pace' }, { workAuthorization: 'Require Sponsorship' });
+    if (v3.status === 'manual') ok('visa: silent JD → manual'); else fail('visa: silent JD', v3.status);
+
+    const v4 = fm.scoreVisa({ visaText: 'visa sponsorship available' }, { workAuthorization: 'Require Sponsorship' });
+    if (v4.status === 'pass') ok('visa: offer text passes'); else fail('visa: offer text', v4.status);
+
+    // Location
+    const l1 = fm.scoreLocation({ location: 'New York, NY' }, { preferredLocations: ['NYC'] });
+    if (l1.status === 'pass') ok('location: NYC ↔ New York alias'); else fail('location: NYC alias', JSON.stringify(l1));
+
+    const l2 = fm.scoreLocation({ location: 'Austin, TX', locationFlags: { isRemote: true } }, { preferredLocations: ['Remote'] });
+    if (l2.status === 'pass') ok('location: remote pref + remote flag'); else fail('location: remote', JSON.stringify(l2));
+
+    const l3 = fm.scoreLocation({ location: 'Berlin, Germany' }, { preferredLocations: ['New York', 'San Francisco'] });
+    if (l3.status === 'fail') ok('location: no overlap fails'); else fail('location: no overlap', JSON.stringify(l3));
+
+    const l4 = fm.scoreLocation({ location: 'anywhere' }, { preferredLocations: [] });
+    if (l4.status === 'pass') ok('location: empty prefs pass'); else fail('location: empty prefs', JSON.stringify(l4));
+
+    // JD silent on location AND no remote/hybrid/onsite flag → manual, NOT fail
+    const l5 = fm.scoreLocation({ location: '', locationFlags: {} }, { preferredLocations: ['San Francisco', 'Austin'] });
+    if (l5.status === 'manual') ok('location: JD silent → manual (not fail)'); else fail('location: silent JD', JSON.stringify(l5));
+
+    const usWestPrefs = { preferredLocations: ['California State', 'Oregon State', 'Washington', 'USA'] };
+    const l6 = fm.scoreLocation({ location: 'New York OR London', locationFlags: { isOnsite: true } }, usWestPrefs);
+    if (l6.status === 'pass') ok('location: standalone USA accepts New York with uppercase OR'); else fail('location: USA + uppercase OR', JSON.stringify(l6));
+
+    const l7 = fm.scoreLocation({ location: 'New York; London', locationFlags: { isOnsite: true } }, usWestPrefs);
+    if (l7.status === 'pass') ok('location: standalone USA accepts New York with semicolon list'); else fail('location: USA + semicolon', JSON.stringify(l7));
+
+    const l8 = fm.scoreLocation({ location: 'On-site presence in New York or London', locationFlags: { isOnsite: true } }, usWestPrefs);
+    if (l8.status === 'pass') ok('location: standalone USA accepts New York inside extracted prose'); else fail('location: USA + prose', JSON.stringify(l8));
+
+    const l9 = fm.scoreLocation({ location: 'New York; London', locationFlags: { isOnsite: true } }, { preferredLocations: 'California State, Oregon State, Washington, USA' });
+    if (l9.status === 'pass') ok('location: comma-separated preference string normalizes before matching'); else fail('location: preference string', JSON.stringify(l9));
+
+    // Work mode
+    const w1 = fm.scoreWorkMode({ locationFlags: { isHybrid: true } }, { remotePreference: 'Hybrid' });
+    if (w1.status === 'pass') ok('workMode: hybrid match'); else fail('workMode: hybrid', JSON.stringify(w1));
+
+    const w2 = fm.scoreWorkMode({ locationFlags: { isOnsite: true } }, { remotePreference: 'Remote' });
+    if (w2.status === 'fail') ok('workMode: onsite vs remote pref'); else fail('workMode: mismatch', JSON.stringify(w2));
+
+    const w3 = fm.scoreWorkMode({ locationFlags: {} }, { remotePreference: 'Remote' });
+    if (w3.status === 'pass') ok('workMode: JD silent passes'); else fail('workMode: silent', JSON.stringify(w3));
+
+    const w4 = fm.scoreWorkMode({ locationFlags: { isOnsite: true } }, { remotePreference: 'Flexible' });
+    if (w4.status === 'pass') ok('workMode: flexible passes anything'); else fail('workMode: flexible', JSON.stringify(w4));
+
+    // Multi-value preferences: Remote OR Hybrid → Remote JD passes
+    const w5 = fm.scoreWorkMode({ locationFlags: { isRemote: true } }, { remotePreference: 'Remote, Hybrid' });
+    if (w5.status === 'pass') ok('workMode: multi (Remote, Hybrid) accepts Remote'); else fail('workMode: multi remote', JSON.stringify(w5));
+
+    // Multi-value preferences: Remote OR Hybrid → On-site JD fails
+    const w6 = fm.scoreWorkMode({ locationFlags: { isOnsite: true } }, { remotePreference: 'Remote, Hybrid' });
+    if (w6.status === 'fail') ok('workMode: multi (Remote, Hybrid) rejects On-site'); else fail('workMode: multi onsite', JSON.stringify(w6));
+
+    // Flexible alongside others — any JD mode passes
+    const w7 = fm.scoreWorkMode({ locationFlags: { isOnsite: true } }, { remotePreference: 'Remote, Flexible' });
+    if (w7.status === 'pass') ok('workMode: list with Flexible accepts anything'); else fail('workMode: flexible-in-list', JSON.stringify(w7));
+
+    // Employment type
+    const e1 = fm.scoreEmploymentType({ employmentType: 'Permanent' }, { desiredEmploymentType: 'Full-time' });
+    if (e1.status === 'pass') ok('employment: Permanent ↔ Full-time'); else fail('employment: synonym', JSON.stringify(e1));
+
+    const e2 = fm.scoreEmploymentType({ employmentType: 'Contract' }, { desiredEmploymentType: 'Full-time' });
+    if (e2.status === 'fail') ok('employment: Contract vs Full-time'); else fail('employment: mismatch', JSON.stringify(e2));
+
+    const e3 = fm.scoreEmploymentType({ employmentType: null }, { desiredEmploymentType: 'Full-time' });
+    if (e3.status === 'pass') ok('employment: JD silent passes'); else fail('employment: silent', JSON.stringify(e3));
+
+    // scoreHard aggregator
+    const h1 = fm.scoreHard(
+        { visaText: 'no sponsorship', location: 'Berlin', locationFlags: { isOnsite: true }, employmentType: 'Contract' },
+        { workAuthorization: 'Require Sponsorship', preferredLocations: ['New York'], remotePreference: 'Remote', desiredEmploymentType: 'Full-time' }
+    );
+    if (!h1.passed && h1.hardFailReasons.length === 4) ok('scoreHard: aggregates 4 fails'); else fail('scoreHard: aggregate', JSON.stringify(h1));
+
+    // === FitMatcher soft params ===
+    out.insertAdjacentHTML('beforeend', '<h2>FitMatcher (soft)</h2>');
+    let r;
+
+    // YoE: have 7, need 5 → 100
+    r = fm.scoreYoE({ requiredYoE: { min: 5 } }, { yearsOfExperience: '7' });
+    if (r.score === 100) ok('YoE: 7 vs 5+ → 100'); else fail('yoe over', JSON.stringify(r));
+    // YoE: 1 yr under → 75
+    r = fm.scoreYoE({ requiredYoE: { min: 5 } }, { yearsOfExperience: '4' });
+    if (r.score === 75) ok('YoE: 4 vs 5 → 75'); else fail('yoe -1', JSON.stringify(r));
+    // YoE: 3 yr under → 25
+    r = fm.scoreYoE({ requiredYoE: { min: 8 } }, { yearsOfExperience: '5' });
+    if (r.score === 25) ok('YoE: 5 vs 8 → 25'); else fail('yoe -3', JSON.stringify(r));
+    // YoE: JD silent → skipped
+    r = fm.scoreYoE({ requiredYoE: { min: null } }, { yearsOfExperience: '5' });
+    if (r.status === 'skipped') ok('YoE: JD silent → skipped'); else fail('yoe skipped', JSON.stringify(r));
+
+    // Title rules: exact substring → 100
+    r = fm.scoreTitleRules({ title: 'Senior Software Engineer' }, { targetRoles: ['Software Engineer'] });
+    if (r.score === 100) ok('title: substring match → 100'); else fail('title sub', JSON.stringify(r));
+
+    // Skills rules: 3 of 4 → 75
+    r = fm.scoreSkillsRules(
+        { descriptionText: 'We use JavaScript, Python and React extensively. ' + 'x'.repeat(300) },
+        { skills: 'JavaScript, Python, React, Rust' });
+    if (r.score === 75) ok('skills: 3/4 → 75'); else fail('skills 3/4', JSON.stringify(r));
+
+    // Skills rules: special chars survive escape (C++)
+    r = fm.scoreSkillsRules(
+        { descriptionText: 'We use C++ and Python in our stack. ' + 'x'.repeat(300) },
+        { skills: 'C++, Python' });
+    if (r.score === 100) ok('skills: C++ escapes correctly'); else fail('skills C++', JSON.stringify(r));
+
+    // Salary: client expected 120k-140k, JD 130k-150k → 100 (overlap)
+    r = fm.scoreSalary({ salaryRange: { min: 130000, max: 150000 } }, { expectedSalary: '120000-140000' });
+    if (r.score === 100) ok('salary: overlap → 100'); else fail('salary overlap', JSON.stringify(r));
+    // Salary: client wants 200k, JD pays 100k → 50 (below target)
+    r = fm.scoreSalary({ salaryRange: { min: 90000, max: 100000 } }, { expectedSalary: '200000' });
+    if (r.score === 50) ok('salary: below target → 50'); else fail('salary below', JSON.stringify(r));
+
+    // Overall: hard fail short-circuits to verdict not_a_fit
+    const fitFail = fm.score(
+        { requiredYoE:{min:3}, locationFlags:{isOnsite:true}, location:'NYC', visaText:null,
+          employmentType:'Full-time', salaryRange:null, descriptionText:'x'.repeat(300), title:'SWE' },
+        { workAuthorization:'US Citizen', preferredLocations:['Remote'], remotePreference:'Remote',
+          desiredEmploymentType:'Full-time', yearsOfExperience:'5', skills:'a',
+          targetRoles:['SWE'], expectedSalary:'' });
+    if (fitFail.verdict === 'not_a_fit') ok('verdict: hard fail → not_a_fit'); else fail('hard fail', JSON.stringify(fitFail));
+
+    // Overall: clean pass → strong
+    const fitPass = fm.score(
+        { requiredYoE:{min:3}, locationFlags:{isRemote:true}, location:'Remote', visaText:'sponsorship available',
+          employmentType:'Full-time', salaryRange:{min:120000,max:140000,currency:'USD'},
+          descriptionText:'JavaScript Python React '.repeat(50), title:'Software Engineer' },
+        { workAuthorization:'Require Sponsorship', preferredLocations:['Remote'], remotePreference:'Remote',
+          desiredEmploymentType:'Full-time', yearsOfExperience:'5', skills:'JavaScript, Python, React',
+          targetRoles:['Software Engineer'], expectedSalary:'120000-140000' });
+    if (fitPass.verdict === 'strong' && fitPass.overallPct >= 80) ok(`verdict: clean pass → strong (${fitPass.overallPct}%)`); else fail('clean pass', JSON.stringify(fitPass));
+}
+run();
+</script></body></html>

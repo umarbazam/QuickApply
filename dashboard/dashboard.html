@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickApply Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="dashboard-header">
+    <div class="header-logo">
+      <img src="../icons/icon48.png" alt="" class="header-logo-icon">
+      <span class="header-logo-text">QuickApply</span>
+    </div>
+    <div class="header-actions">
+      <span id="storage-indicator" class="storage-indicator">0 B used</span>
+      <div class="header-action-group" aria-label="Full backup actions">
+      <button id="btn-full-backup" class="btn btn-primary btn-sm" aria-label="Full backup — export everything" title="Export all clients, settings, corrections, recordings and AI cache in one file">
+        ⬇ Full Backup
+      </button>
+      <button id="btn-full-restore" class="btn btn-outline btn-sm" aria-label="Full restore — import everything" title="Restore a full backup file">
+        ⬆ Full Restore
+      </button>
+      <input type="file" id="full-restore-input" accept=".json" style="display:none">
+      </div>
+      <div class="header-divider" role="separator"></div>
+      <div class="header-action-group" aria-label="Profile data actions">
+      <button id="btn-import" class="btn btn-outline btn-sm" data-icon="upload" aria-label="Import profiles">
+        Import
+      </button>
+      <button id="btn-export" class="btn btn-outline btn-sm" data-icon="download" aria-label="Export profiles">
+        Export
+      </button>
+      </div>
+      <div class="header-divider" role="separator"></div>
+      <div class="header-action-group" aria-label="Learning memory actions">
+      <button id="btn-import-learning" class="btn btn-ghost btn-sm" data-icon="database-import" aria-label="Import learning memory">
+        Import Memory
+      </button>
+      <button id="btn-export-learning" class="btn btn-ghost btn-sm" data-icon="database-export" aria-label="Export learning memory">
+        Export Memory
+      </button>
+      <button id="btn-flush-learning" class="btn btn-ghost btn-sm btn-flush" data-icon="trash" aria-label="Flush all learning data" title="Clear all learned field mappings, corrections, and platform knowledge">
+        Flush Learning
+      </button>
+      </div>
+      <div class="header-divider" role="separator"></div>
+      <div class="header-action-group" aria-label="Diagnostics and settings">
+      <button id="btn-export-log" class="btn btn-ghost btn-sm" aria-label="Export fill error log" title="Download a JSON log of all fill sessions — share with support for debugging">
+        Export Log
+      </button>
+      <div class="header-divider" role="separator"></div>
+      <button id="btn-open-settings" class="btn btn-ghost btn-sm btn-icon" data-icon="settings" aria-label="Global settings" title="API key, default password, and global options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ BODY ═══ -->
+  <div class="dashboard-body">
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input type="text" id="sidebar-search" class="search-input" placeholder="Search clients..."
+          aria-label="Search clients">
+      </div>
+
+      <div class="client-list" id="client-list">
+        <!-- Client cards rendered by JS -->
+      </div>
+
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" id="tab-clients" data-tab="clients">Clients</button>
+        <button class="sidebar-tab" id="tab-shift-tracker" data-tab="shift-tracker">Shift Tracker</button>
+        <button class="sidebar-tab" id="tab-learning" data-tab="learning">Learning</button>
+        <button class="sidebar-tab" id="tab-recordings" data-tab="recordings">Recordings</button>
+        <button class="sidebar-tab" id="tab-jd-analyzer" data-tab="jd-analyzer">JD Analyzer</button>
+        <button class="sidebar-tab" id="tab-batch-apply" data-tab="batch-apply">Batch Apply</button>
+      </div>
+      <div class="sidebar-footer">
+        <button id="btn-add-client" class="btn btn-primary btn-lg btn-full" data-icon="plus" aria-label="Add new client">
+          Add Client
+        </button>
+        <span id="client-count" class="client-count">0 clients</span>
+      </div>
+    </aside>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="main-content" id="main-content">
+
+      <!-- Shift Tracker Panel — top-level tab, mounted at the top of <main> so it shows first
+           when active. Cross-client daily-counter view; reads quickapply_daily_counts. -->
+      <div id="shift-tracker-panel" class="shift-tracker-panel" style="display:none;">
+        <div class="form-header" style="margin-bottom:24px;">
+          <div class="form-header-info">
+            <h1 class="form-client-name">Shift Tracker</h1>
+            <p class="form-last-updated">Daily submission targets across every client. Refreshes on every fill.</p>
+          </div>
+        </div>
+
+        <div class="form-section" id="daily-targets-section" data-section="daily-targets">
+          <button type="button" class="section-header" aria-expanded="true">
+            <span class="section-num">⊞</span>
+            <span class="section-title">Daily Targets</span>
+            <span class="section-completion" id="daily-targets-summary"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <p class="hint" id="daily-targets-empty">No fills logged yet for any client.</p>
+            <div id="daily-targets-today" class="daily-targets-block" hidden>
+              <h4 class="daily-targets-block-title" id="daily-targets-today-title">Today</h4>
+              <div class="daily-targets-rows" id="daily-targets-today-rows"></div>
+              <div class="daily-targets-totals" id="daily-targets-today-totals"></div>
+              <div class="daily-targets-actions">
+                <button type="button" id="btn-reset-shift" class="btn btn-danger-outline btn-sm" data-icon="refresh">Reset today's shift</button>
+              </div>
+            </div>
+            <details id="daily-targets-history" class="daily-targets-history" hidden>
+              <summary>Show last 14 shifts</summary>
+              <div class="daily-targets-history-body" id="daily-targets-history-body"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions Banner -->
+      <div class="suggestions-banner" id="suggestions-banner" style="display:none; max-width:820px;">
+        <div class="suggestions-header">
+          <span>Suggested Fields</span>
+          <span class="suggestions-count" id="suggestions-count"></span>
+        </div>
+        <div id="suggestions-list"></div>
+      </div>
+
+      <!-- Learning Panel (D3) -->
+      <div id="learning-panel" class="learning-panel" style="display:none;">
+        <div class="form-header" style="margin-bottom:24px;">
+          <div class="form-header-info">
+            <h1 class="form-client-name">Learning &amp; Insights</h1>
+            <p class="form-last-updated">What QuickApply has learned across all platforms and clients</p>
+          </div>
+        </div>
+
+        <!-- Data management flush controls -->
+        <div class="data-management-bar">
+          <button id="btn-clear-log" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Fill Log</button>
+          <button id="btn-clear-corrections" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Corrections</button>
+          <button id="btn-clear-platform-knowledge" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Platform Knowledge</button>
+          <button id="btn-clear-registry" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Registry</button>
+          <button id="btn-reset-job-counters" class="btn btn-danger-outline btn-sm" data-icon="refresh">Reset Job Counters</button>
+        </div>
+
+        <div class="learning-toolbar" role="search" aria-label="Filter learning tables">
+          <div class="learning-search-wrap">
+            <svg class="learning-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="search" id="learning-search" class="form-input learning-search-input" placeholder="Search learning data..." aria-label="Search learning tables">
+          </div>
+          <select id="learning-confidence-filter" class="form-select learning-filter-select" aria-label="Filter by confidence">
+            <option value="all">All confidence</option>
+            <option value="trusted">Trusted only</option>
+            <option value="low">Low confidence</option>
+          </select>
+        </div>
+
+        <!-- Corrections -->
+        <div class="form-section" data-section="corrections">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">01</span>
+            <span class="section-title">Corrections</span>
+            <span class="section-completion" id="corr-count"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <p class="hint" style="margin-bottom:12px;">Manual corrections you've made. These override all other fill strategies at highest priority.</p>
+            <div id="corr-table-wrap" style="overflow-x:auto;">
+              <table class="learn-table" id="corr-table">
+                <thead>
+                  <tr><th>Platform</th><th>Field Name</th><th>Profile Field</th><th>Value</th><th>Uses</th></tr>
+                </thead>
+                <tbody id="corr-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Platform Knowledge -->
+        <div class="form-section" data-section="platform-knowledge">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">02</span>
+            <span class="section-title">Platform Knowledge</span>
+            <span class="section-completion" id="pk-count"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <p class="hint" style="margin-bottom:12px;">Learned field-to-profile mappings per site. High confidence = trusted for future fills.</p>
+            <div id="pk-table-wrap" style="overflow-x:auto;">
+              <table class="learn-table" id="pk-table">
+                <thead>
+                  <tr><th>Domain</th><th>Field Name</th><th>Profile Field</th><th>Confidence</th><th>Uses</th></tr>
+                </thead>
+                <tbody id="pk-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field Registry -->
+        <div class="form-section" data-section="field-registry">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">03</span>
+            <span class="section-title">Universal Field Registry</span>
+            <span class="section-completion" id="reg-count"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <p class="hint" style="margin-bottom:12px;">Cross-platform field mappings. Entries above 0.6 confidence are used as priority lookup.</p>
+            <div id="reg-table-wrap" style="overflow-x:auto;">
+              <table class="learn-table" id="reg-table">
+                <thead>
+                  <tr><th>Field Key</th><th>Profile Field</th><th>Source</th><th>Confidence</th></tr>
+                </thead>
+                <tbody id="reg-tbody"><tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fill Stats -->
+        <div class="form-section" data-section="fill-stats">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">04</span>
+            <span class="section-title">Fill Session History</span>
+            <span class="section-completion" id="fs-count"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div id="fs-list" style="display:flex;flex-direction:column;gap:8px;">
+              <p class="hint" id="fs-empty">No fill sessions logged yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Recordings Panel -->
+      <div id="recordings-panel" style="display:none; max-width:900px;">
+        <div class="form-header" style="margin-bottom:24px;">
+          <div class="form-header-info">
+            <h1 class="form-client-name">Session Recordings</h1>
+            <p class="form-last-updated">Full-fidelity logs of every field, step, network call, and submit payload</p>
+          </div>
+        </div>
+        <div class="data-management-bar">
+          <button id="btn-export-recordings" class="btn btn-outline btn-sm" data-icon="download">Export All (JSON)</button>
+          <button id="btn-clear-recordings" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Recordings</button>
+          <span id="rec-summary" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
+        </div>
+        <div id="rec-list" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+          <p class="hint" id="rec-empty">No recordings yet. Apply to a job while QuickApply is active and it will be recorded automatically.</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <svg class="empty-icon" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="55" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" opacity="0.2" />
+          <path d="M50 45h20v30H50z" stroke="currentColor" stroke-width="2" opacity="0.3" />
+          <circle cx="60" cy="53" r="6" stroke="currentColor" stroke-width="2" opacity="0.3" />
+          <path d="M48 75c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="2" opacity="0.3" />
+        </svg>
+        <h2 class="empty-title">Select a client or add a new one</h2>
+        <p class="empty-subtitle">Choose from the sidebar or click "Add Client" to get started</p>
+      </div>
+
+      <!-- AI Cache Panel -->
+      <div class="panel" id="ai-cache-panel" style="display:none; max-width:600px; margin-bottom:24px;">
+        <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;">AI Answer Cache</h3>
+        <div id="cache-stats" style="margin-bottom:8px;color:var(--text-secondary,#666);font-size:14px;">Loading...</div>
+        <div class="cache-by-platform" id="cache-by-platform" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;"></div>
+        <div class="panel-actions" style="display:flex;gap:8px;">
+          <button id="btn-clear-ai-cache" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear AI Cache</button>
+          <button id="btn-export-cache" class="btn btn-ghost btn-sm" data-icon="download">Export Cache</button>
+        </div>
+      </div>
+
+      <!-- Client Form -->
+      <div class="client-form" id="client-form" style="display:none;">
+
+        <!-- Form Header -->
+        <div class="form-header">
+          <div class="form-avatar" id="form-avatar">
+            <span id="form-avatar-text">??</span>
+          </div>
+          <div class="form-header-info">
+            <h1 class="form-client-name" id="form-client-name">New Client</h1>
+            <p class="form-last-updated" id="form-last-updated"></p>
+          </div>
+        </div>
+
+        <!-- Hidden ID field -->
+        <input type="hidden" id="clientId">
+
+        <!-- ═══ 01 — Job Preferences ═══ -->
+        <div class="form-section" data-section="jobprefs">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">01</span>
+            <span class="section-title">Job Preferences</span>
+            <span class="section-completion" id="jobprefs-completion">0/2</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row">
+              <label class="form-label" for="targetJobTitle">Target Job Title</label>
+              <input type="text" id="targetJobTitle" class="form-input" placeholder="e.g. Senior Software Engineer">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="targetJobFunction">Target Job Function</label>
+              <input type="text" id="targetJobFunction" class="form-input" placeholder="e.g. Engineering, Finance, Marketing">
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label">Job Type</label>
+              <div class="checkbox-group">
+                <label class="checkbox-option"><input type="checkbox" name="targetJobType" value="Full-time"> Full-time</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetJobType" value="Part-time"> Part-time</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetJobType" value="Contract"> Contract</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetJobType" value="Internship"> Internship</label>
+              </div>
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label">Experience Level</label>
+              <div class="checkbox-group">
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Intern/New Grad"> Intern/New Grad</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Entry Level 1-3 yrs"> Entry Level 1-3 yrs</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Mid Level 3-5 yrs"> Mid Level 3-5 yrs</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Senior Level 5+ yrs"> Senior Level 5+ yrs</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Lead/Staff"> Lead/Staff</label>
+                <label class="checkbox-option"><input type="checkbox" name="targetExperienceLevel" value="Director/Executive"> Director/Executive</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 02 — Personal ═══ -->
+        <div class="form-section" data-section="personal">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">02</span>
+            <span class="section-title">Personal</span>
+            <span class="section-completion" id="personal-completion">0/4</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row">
+              <label class="form-label" for="firstName">First Name *</label>
+              <input type="text" id="firstName" class="form-input" placeholder="e.g. Ali" required>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="lastName">Last Name *</label>
+              <input type="text" id="lastName" class="form-input" placeholder="e.g. Hassan" required>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="middleName">Middle Name</label>
+              <input type="text" id="middleName" class="form-input" placeholder="Optional">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="preferredName">Preferred Name</label>
+              <input type="text" id="preferredName" class="form-input" placeholder="Nickname or preferred">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="email">Email *</label>
+              <input type="email" id="email" class="form-input" placeholder="e.g. ali@example.com" required>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="phone">Phone</label>
+              <input type="tel" id="phone" class="form-input" placeholder="e.g. +1-555-123-4567">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="defaultPassword">Account Password</label>
+              <div class="settings-inline-control">
+                <input type="password" id="defaultPassword" class="form-input" autocomplete="new-password" placeholder="This client's password for Workday, iCIMS, etc.">
+                <button type="button" id="btn-toggle-password" class="btn btn-ghost btn-sm" data-icon="eye" title="Show/hide password">Show</button>
+              </div>
+              <p class="hint">Used when this client's applications need an account. Each client has their own. Stored locally only.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 03 — Online Presence ═══ -->
+        <div class="form-section collapsed" data-section="online">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">03</span>
+            <span class="section-title">Online Presence</span>
+            <span class="section-completion" id="online-completion">0/3</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row">
+              <label class="form-label" for="linkedIn">LinkedIn URL</label>
+              <input type="url" id="linkedIn" class="form-input" placeholder="https://linkedin.com/in/...">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="github">GitHub URL</label>
+              <input type="url" id="github" class="form-input" placeholder="https://github.com/...">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="portfolio">Portfolio / Website</label>
+              <input type="url" id="portfolio" class="form-input" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 04 — Address ═══ -->
+        <div class="form-section collapsed" data-section="address">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">04</span>
+            <span class="section-title">Address</span>
+            <span class="section-completion" id="address-completion">0/5</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row full-width">
+              <label class="form-label" for="streetAddress">Street Address</label>
+              <input type="text" id="streetAddress" class="form-input" placeholder="e.g. 123 Main St, Apt 4B">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="city">City</label>
+              <input type="text" id="city" class="form-input" placeholder="e.g. New York">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="state">State / Province</label>
+              <input type="text" id="state" class="form-input" placeholder="e.g. NY">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="zipCode">Zip / Postal Code</label>
+              <input type="text" id="zipCode" class="form-input" placeholder="e.g. 10001">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="country">Country</label>
+              <select id="country" class="form-select">
+                <option value="">Select country</option>
+                <option value="United States">United States</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+                <option value="Germany">Germany</option>
+                <option value="France">France</option>
+                <option value="India">India</option>
+                <option value="Pakistan">Pakistan</option>
+                <option value="China">China</option>
+                <option value="Japan">Japan</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 05 — Work Experience ═══ -->
+        <div class="form-section collapsed" data-section="experience">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">05</span>
+            <span class="section-title">Work Experience</span>
+            <span class="section-completion" id="experience-completion">0 entries</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div id="work-experience-list"></div>
+            <button type="button" id="btn-add-experience" class="btn btn-outline btn-sm" data-icon="plus" style="margin-top:12px">Add Experience</button>
+          </div>
+        </div>
+
+        <!-- ═══ 06 — Education ═══ -->
+        <div class="form-section collapsed" data-section="education">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">06</span>
+            <span class="section-title">Education</span>
+            <span class="section-completion" id="education-completion">0 entries</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div id="education-list"></div>
+            <button type="button" id="btn-add-education" class="btn btn-outline btn-sm" data-icon="plus" style="margin-top:12px">Add Education</button>
+          </div>
+        </div>
+
+        <!-- ═══ 07 — Skills & Qualifications ═══ -->
+        <div class="form-section collapsed" data-section="skills">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">07</span>
+            <span class="section-title">Skills &amp; Qualifications</span>
+            <span class="section-completion" id="skills-completion">0/3</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row full-width">
+              <label class="form-label" for="skills">Skills</label>
+              <textarea id="skills" class="form-textarea"
+                placeholder="Comma-separated: JavaScript, Python, React, ..."></textarea>
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label" for="certifications">Certifications</label>
+              <textarea id="certifications" class="form-textarea"
+                placeholder="Comma-separated: AWS Certified, PMP, ..."></textarea>
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label" for="languages">Languages</label>
+              <input type="text" id="languages" class="form-input" placeholder="e.g. English, Urdu, Arabic">
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 08 — Work Authorization & Preferences ═══ -->
+        <div class="form-section collapsed" data-section="workprefs">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">08</span>
+            <span class="section-title">Work Authorization &amp; Preferences</span>
+            <span class="section-completion" id="workprefs-completion">0/5</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row full-width">
+              <label class="form-label" for="preferredLocations">Preferred Locations</label>
+              <textarea id="preferredLocations" class="form-textarea"
+                placeholder="Comma-separated: New York, NY, San Francisco, Remote"></textarea>
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label" for="targetRoles">Target Roles</label>
+              <textarea id="targetRoles" class="form-textarea"
+                placeholder="Comma-separated: Software Engineer, Backend Engineer"></textarea>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="workAuthorization">Work Authorization</label>
+              <select id="workAuthorization" class="form-select">
+                <option value="">Select</option>
+                <option value="US Citizen">US Citizen</option>
+                <option value="Green Card">Green Card</option>
+                <option value="H1B Visa">H1B Visa</option>
+                <option value="EAD">EAD</option>
+                <option value="OPT">OPT</option>
+                <option value="Tier 2 Visa">Tier 2 Visa</option>
+                <option value="Right to Work">Right to Work</option>
+                <option value="Require Sponsorship">Require Sponsorship</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="expectedSalary">Expected Salary</label>
+              <input type="text" id="expectedSalary" class="form-input" placeholder="e.g. 120000">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="salaryCurrency">Currency</label>
+              <select id="salaryCurrency" class="form-select">
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+                <option value="EUR">EUR</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="PKR">PKR</option>
+                <option value="INR">INR</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="noticePeriod">Notice Period</label>
+              <input type="text" id="noticePeriod" class="form-input" placeholder="e.g. 2 weeks">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="desiredStartDate">Available / Start Date</label>
+              <input type="text" id="desiredStartDate" class="form-input" placeholder="e.g. Immediately, 2 weeks, 01/15/2026">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Remote Preference (check all that apply)</label>
+              <div class="settings-check-list" id="remotePreferenceGroup" style="display:flex;flex-wrap:wrap;gap:14px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" class="js-remote-pref" value="Remote"> Remote
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" class="js-remote-pref" value="Hybrid"> Hybrid
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" class="js-remote-pref" value="On-site"> On-site
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" class="js-remote-pref" value="Flexible"> Flexible (any)
+                </label>
+              </div>
+              <input type="hidden" id="remotePreference">
+              <p class="hint" style="margin-top:4px;">Pick "Flexible (any)" to accept Remote, Hybrid, and On-site. Multiple boxes are OR-matched against the JD's listed work mode.</p>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="desiredEmploymentType">Employment Type</label>
+              <select id="desiredEmploymentType" class="form-select">
+                <option value="">Select</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Internship">Internship</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="willingToRelocate">Willing to Relocate</label>
+              <select id="willingToRelocate" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Open to Discussion">Open to Discussion</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="yearsOfExperience">Total Years Experience</label>
+              <input type="text" id="yearsOfExperience" class="form-input" placeholder="e.g. 5">
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 09 — EEO & Compliance ═══ -->
+        <div class="form-section collapsed" data-section="eeo">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">09</span>
+            <span class="section-title">EEO &amp; Compliance</span>
+            <span class="section-completion" id="eeo-completion">0/3</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row">
+              <label class="form-label" for="gender">Gender / Gender Identity</label>
+              <select id="gender" class="form-select">
+                <option value="">Select</option>
+                <option value="Male">Male / Man</option>
+                <option value="Female">Female / Woman</option>
+                <option value="Non-binary">Non-binary / Non-conforming</option>
+                <option value="Transgender">Transgender</option>
+                <option value="Prefer not to say">Prefer not to say / Decline</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="veteranStatus">Veteran Status</label>
+              <select id="veteranStatus" class="form-select">
+                <option value="">Select</option>
+                <option value="I am a veteran">I am a veteran</option>
+                <option value="I am not a veteran">I am not a veteran</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="disabilityStatus">Disability Status</label>
+              <select id="disabilityStatus" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes, I have a disability">Yes, I have a disability</option>
+                <option value="No">No</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="ethnicity">Ethnicity</label>
+              <select id="ethnicity" class="form-select">
+                <option value="">Select</option>
+                <option value="White">White</option>
+                <option value="Black or African American">Black or African American</option>
+                <option value="Hispanic or Latino">Hispanic or Latino</option>
+                <option value="Asian">Asian</option>
+                <option value="Native American or Alaska Native">Native American or Alaska Native</option>
+                <option value="Native Hawaiian or Pacific Islander">Native Hawaiian or Pacific Islander</option>
+                <option value="Two or More Races">Two or More Races</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="hispanicLatino">Hispanic / Latino?</label>
+              <select id="hispanicLatino" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="sexualOrientation">Sexual Orientation</label>
+              <select id="sexualOrientation" class="form-select">
+                <option value="">Select</option>
+                <option value="Heterosexual">Heterosexual / Straight</option>
+                <option value="Gay">Gay</option>
+                <option value="Lesbian">Lesbian</option>
+                <option value="Bisexual">Bisexual</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="pronouns">Pronouns</label>
+              <input type="text" id="pronouns" class="form-input" placeholder="e.g. He/Him, She/Her, They/Them">
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="driversLicense">Valid Driver's License?</label>
+              <select id="driversLicense" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="backgroundCheckConsent">Background Check Consent</label>
+              <select id="backgroundCheckConsent" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="drugTestConsent">Drug Test Consent</label>
+              <select id="drugTestConsent" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="ageEligible">18 Years or Older?</label>
+              <select id="ageEligible" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="securityClearance">Security Clearance</label>
+              <select id="securityClearance" class="form-select">
+                <option value="">Select</option>
+                <option value="None">None</option>
+                <option value="Confidential">Confidential</option>
+                <option value="Secret">Secret</option>
+                <option value="Top Secret">Top Secret</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="nonCompete">Subject to Non-Compete?</label>
+              <select id="nonCompete" class="form-select">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 10 — Application Defaults ═══ -->
+        <div class="form-section collapsed" data-section="appdefaults">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">10</span>
+            <span class="section-title">Application Defaults</span>
+            <span class="section-completion" id="appdefaults-completion">0/2</span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row">
+              <label class="form-label" for="heardAboutUs">How Did You Hear About Us?</label>
+              <select id="heardAboutUs" class="form-select">
+                <option value="">Select</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Indeed">Indeed</option>
+                <option value="Glassdoor">Glassdoor</option>
+                <option value="Referral">Referral / Employee</option>
+                <option value="Company Website">Company Website</option>
+                <option value="Google">Google / Search</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Job Board">Other Job Board</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-row full-width">
+              <label class="form-label" for="coverLetter">Cover Letter Text</label>
+              <textarea id="coverLetter" class="form-textarea" rows="6"
+                placeholder="Paste your cover letter here. It will be auto-filled into cover letter text fields."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 11 — Resume / CV ═══ -->
+        <div class="form-section" data-section="resume">
+          <button class="section-header" aria-expanded="true">
+            <span class="section-num">11</span>
+            <span class="section-title">Resume / CV</span>
+            <span class="section-completion" id="resume-completion"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row full-width">
+              <div class="file-dropzone" id="cv-dropzone" tabindex="0" role="button" aria-label="Upload resume or CV">
+                <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 16V4m0 0L8 8m4-4 4 4" />
+                  <path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" />
+                </svg>
+                <span class="drop-text">Drag &amp; drop or click to upload</span>
+                <span class="drop-hint">PDF or DOCX, max 5MB</span>
+                <input type="file" id="cvFile" class="file-input-hidden"
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+              </div>
+              <div class="current-file" id="cv-current" style="display:none;">
+                <span class="file-icon">&#128196;</span>
+                <span class="file-name" id="cv-filename"></span>
+                <span class="file-size" id="cv-filesize"></span>
+                <span class="cv-integrity-badge" id="cv-integrity" title="File integrity status"></span>
+                <button class="btn-remove-file" id="cv-remove" aria-label="Remove CV">&times;</button>
+              </div>
+              <!-- CV Parse overlay -->
+              <div class="cv-parse-overlay" id="cv-parse-overlay" style="display:none;">
+                <div class="parse-spinner"></div>
+                <span class="parse-text">Parsing resume...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 12 — Cover Letter ═══ -->
+        <div class="form-section collapsed" data-section="coverletter">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">11</span>
+            <span class="section-title">Cover Letter (Optional)</span>
+            <span class="section-completion" id="coverletter-completion"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div class="form-row full-width">
+              <div class="file-dropzone" id="cl-dropzone" tabindex="0" role="button" aria-label="Upload cover letter">
+                <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 16V4m0 0L8 8m4-4 4 4" />
+                  <path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" />
+                </svg>
+                <span class="drop-text">Drag &amp; drop or click to upload</span>
+                <span class="drop-hint">PDF or DOCX, max 5MB</span>
+                <input type="file" id="clFile" class="file-input-hidden"
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+              </div>
+              <div class="current-file" id="cl-current" style="display:none;">
+                <span class="file-icon">&#9993;</span>
+                <span class="file-name" id="cl-filename"></span>
+                <span class="file-size" id="cl-filesize"></span>
+                <button class="btn-remove-file" id="cl-remove" aria-label="Remove cover letter">&times;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Applied Jobs (D4) ═══ -->
+        <div class="form-section collapsed" id="applied-jobs-section" data-section="applied">
+          <button class="section-header" aria-expanded="false">
+            <span class="section-num">↪</span>
+            <span class="section-title">Applied Jobs</span>
+            <span class="section-completion" id="applied-jobs-count"></span>
+            <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="section-body">
+            <div id="applied-jobs-list" style="display:flex;flex-direction:column;gap:8px;">
+              <p class="hint" id="applied-jobs-empty">No applications logged for this client yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Form Actions (Sticky) ═══ -->
+        <div class="form-actions" id="form-actions">
+          <button id="btn-save" class="btn btn-primary btn-lg" data-icon="save" aria-label="Save client">
+            Save Client
+          </button>
+          <button id="btn-duplicate" class="btn btn-outline btn-md" data-icon="copy" aria-label="Duplicate client">
+            Duplicate
+          </button>
+          <button id="btn-reparse-cv" class="btn btn-outline btn-md" data-icon="refresh" aria-label="Re-parse CV with AI" title="Use AI to extract missing profile fields from the uploaded CV">
+            Re-parse CV with AI
+          </button>
+          <button id="btn-delete" class="btn btn-danger btn-md" data-icon="trash" aria-label="Delete client">
+            Delete
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ─── JD Analyzer Panel ─── -->
+      <div id="jd-analyzer-panel" class="jd-analyzer-panel" style="display:none;">
+        <div class="form-header" style="margin-bottom:18px;">
+          <h2 style="margin:0;">JD Analyzer Queue</h2>
+          <p class="jd-active-client-pill" id="jd-analyzer-active-client" style="margin:4px 0 0;">Matching client: No active client selected</p>
+        </div>
+
+        <section class="jd-analyzer-section">
+          <h3 style="font-size:13px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-text-muted);margin:0 0 8px;">Queue</h3>
+          <textarea id="jd-paste-input" class="form-input" rows="3"
+                    placeholder="Paste URLs here (one per line) or right-click links on applyall.com to enqueue."
+                    style="width:100%;font-family:monospace;font-size:12px;"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="btn-jd-paste-add" class="btn btn-secondary btn-sm">Add to queue</button>
+            <span id="jd-queue-status" class="hint" style="align-self:center;"></span>
+          </div>
+          <ul id="jd-queue-dash-list" class="jd-queue-dash-list" style="margin-top:12px;"></ul>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="btn-jd-run" class="btn btn-primary btn-md">Run analysis</button>
+            <button id="btn-jd-stop" class="btn btn-danger-outline btn-md hidden">Stop</button>
+            <button id="btn-jd-clear-queue" class="btn btn-ghost btn-md">Clear queue</button>
+          </div>
+          <div id="jd-progress" class="jd-progress hidden" style="margin-top:12px;">
+            <div class="jd-progress__bar"><div class="jd-progress__fill" id="jd-progress-fill"></div></div>
+            <p id="jd-progress-text" class="hint" style="margin-top:4px;">0 / 0 scored</p>
+          </div>
+        </section>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
+
+        <section class="jd-analyzer-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <h3 style="font-size:13px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-text-muted);margin:0;">Results</h3>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="jd-results-filters" id="jd-results-filters">
+                <button class="filter-chip active" data-filter="all">All</button>
+                <button class="filter-chip" data-filter="good">Strong + Good</button>
+                <button class="filter-chip" data-filter="failed">Failed</button>
+              </div>
+              <button id="btn-jd-clear-results" class="btn btn-ghost btn-sm" title="Discard the last batch of results">Clear results</button>
+            </div>
+          </div>
+          <div id="jd-results-banner" class="jd-results-banner hidden"></div>
+          <div class="jd-results-table-wrap">
+            <table id="jd-results-table" class="jd-results-table" style="display:none;">
+              <thead>
+                <tr>
+                  <th style="width:36px;text-align:right;color:var(--color-text-secondary)">#</th>
+                  <th data-sort="title">Title</th>
+                  <th data-sort="company">Company</th>
+                  <th data-sort="verdict">Verdict</th>
+                  <th data-sort="pct">Fit %</th>
+                  <th>Top reason</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="jd-results-tbody"></tbody>
+            </table>
+          </div>
+          <p id="jd-results-empty" class="hint">No results yet. Add URLs to the queue and click Run analysis.</p>
+        </section>
+      </div>
+
+      <!-- ─── Batch Apply Panel ─── -->
+      <div id="batch-apply-panel" class="batch-apply-panel" style="display:none;">
+
+        <!-- Queue Builder — shown when no active run -->
+        <div id="batch-builder" class="batch-section">
+          <div class="form-header" style="margin-bottom:18px;">
+            <h2 style="margin:0;">Batch Apply Queue</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:var(--text-muted);">
+              Select clients, paste job URLs, then queue and run.
+            </p>
+          </div>
+
+          <div class="batch-builder-grid">
+            <!-- Client checklist -->
+            <div class="batch-col">
+              <div class="batch-col-header">
+                <span class="batch-col-title">Clients</span>
+                <div class="batch-col-actions">
+                  <button type="button" id="batch-select-all" class="btn btn-ghost btn-sm">Select All</button>
+                  <button type="button" id="batch-clear-sel" class="btn btn-ghost btn-sm">Clear</button>
+                </div>
+              </div>
+              <div id="batch-client-list" class="batch-client-list"></div>
+            </div>
+
+            <!-- URL input -->
+            <div class="batch-col">
+              <div class="batch-col-header">
+                <span class="batch-col-title">Job URLs <span class="batch-hint">(one per line)</span></span>
+              </div>
+              <textarea id="batch-url-input" class="batch-url-textarea"
+                placeholder="https://boards.greenhouse.io/...&#10;https://jobs.lever.co/...&#10;https://ashbyhq.com/..."></textarea>
+            </div>
+          </div>
+
+          <div class="batch-footer">
+            <label class="batch-concurrency-label">
+              Parallel tabs:
+              <select id="batch-concurrency" class="batch-concurrency-select">
+                <option value="1">1 (serial)</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </label>
+            <button type="button" id="batch-queue-btn" class="btn btn-primary" disabled>
+              Queue 0 × 0 = 0 pairs
+            </button>
+          </div>
+        </div>
+
+        <!-- Run Monitor — shown when a batch exists -->
+        <div id="batch-monitor" class="batch-section" style="display:none;">
+          <div class="batch-monitor-header">
+            <div id="batch-status-line" class="batch-status-line">Ready</div>
+            <div class="batch-monitor-actions">
+              <button type="button" id="batch-run-btn"    class="btn btn-primary btn-sm">Run</button>
+              <button type="button" id="batch-pause-btn"  class="btn btn-outline btn-sm" style="display:none;">Pause</button>
+              <button type="button" id="batch-resume-btn" class="btn btn-outline btn-sm" style="display:none;">Resume</button>
+              <button type="button" id="batch-cancel-btn" class="btn btn-ghost btn-sm">Cancel</button>
+              <button type="button" id="batch-new-btn"    class="btn btn-ghost btn-sm" style="display:none;">New Batch</button>
+            </div>
+          </div>
+
+          <div class="batch-table-wrap">
+            <table class="batch-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Job URL</th>
+                  <th>Status</th>
+                  <th>Fields</th>
+                  <th>Duration</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="batch-results-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /batch-apply-panel -->
+    </main>
+  </div>
+
+  <!-- ═══ TOAST CONTAINER ═══ -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- ═══ IMPORT PROFILES MODAL ═══ -->
+  <div class="modal-overlay" id="import-modal" style="display:none;">
+    <div class="modal">
+      <h3 class="modal-title">Import Profiles</h3>
+      <p class="modal-text">Select a QuickApply JSON export file to import.</p>
+      <input type="file" id="import-file-input" accept=".json" class="form-input" style="margin: 16px 0; height:auto; padding: 8px 12px;">
+      <div class="modal-actions">
+        <button id="import-cancel" class="btn btn-ghost btn-md">Cancel</button>
+        <button id="import-confirm" class="btn btn-primary btn-md" data-icon="upload">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ IMPORT LEARNING MEMORY MODAL ═══ -->
+  <div class="modal-overlay" id="import-learning-modal" style="display:none;">
+    <div class="modal">
+      <h3 class="modal-title">Import Learning Memory</h3>
+      <p class="modal-text">Select a QuickApply learning memory JSON file to import. This will overwrite existing learning data.</p>
+      <input type="file" id="import-learning-input" accept=".json" class="form-input" style="margin: 16px 0; height:auto; padding: 8px 12px;">
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-md" onclick="document.getElementById('import-learning-modal').style.display='none'">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DELETE CONFIRM MODAL ═══ -->
+  <div class="modal-overlay" id="delete-modal" style="display:none;">
+    <div class="modal">
+      <h3 class="modal-title">Delete Client</h3>
+      <p class="modal-text" id="delete-modal-text">Are you sure you want to delete this client?</p>
+      <div class="modal-actions">
+        <button id="delete-cancel" class="btn btn-ghost btn-md">Cancel</button>
+        <button id="delete-confirm" class="btn btn-danger btn-md" data-icon="trash">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GLOBAL SETTINGS MODAL (D2) ═══ -->
+  <div class="modal-overlay" id="settings-modal" style="display:none;">
+    <div class="modal settings-modal-dialog">
+      <h3 class="modal-title">Global Settings</h3>
+      <p class="modal-text">These settings apply to all clients.</p>
+      <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+        <button type="button" class="settings-tab active" id="settings-tab-ai" data-settings-tab="ai" role="tab" aria-selected="true" aria-controls="settings-panel-ai">AI</button>
+        <button type="button" class="settings-tab" id="settings-tab-fill" data-settings-tab="fill" role="tab" aria-selected="false" aria-controls="settings-panel-fill">Fill</button>
+        <button type="button" class="settings-tab" id="settings-tab-data" data-settings-tab="data" role="tab" aria-selected="false" aria-controls="settings-panel-data">Data</button>
+        <button type="button" class="settings-tab" id="settings-tab-analyzer" data-settings-tab="analyzer" role="tab" aria-selected="false" aria-controls="settings-panel-analyzer">Job Analyzer</button>
+        <button type="button" class="settings-tab" id="settings-tab-targets" data-settings-tab="targets" role="tab" aria-selected="false" aria-controls="settings-panel-targets">Targets</button>
+      </div>
+      <div class="settings-panel active form-row full-width" id="settings-panel-ai" data-settings-panel="ai" role="tabpanel" aria-labelledby="settings-tab-ai">
+        <label class="form-label" for="geminiApiKey">Gemini API Key</label>
+        <input type="password" id="geminiApiKey" class="form-input" placeholder="Enter your Google AI Studio API key">
+        <p class="hint">Stored locally. Used only for field identification and value mapping.</p>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+      <div class="settings-panel form-row full-width" id="settings-panel-fill" data-settings-panel="fill" role="tabpanel" aria-labelledby="settings-tab-fill" hidden>
+        <label class="form-label">Fill Behaviour</label>
+        <div class="settings-check-list">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="dashAutoAdvanceSteps" checked>
+            Auto-advance form steps (click Next automatically)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="dashAutoSubmit">
+            Auto-submit (hands-free) <span style="color:#B45309;font-size:12px;">⚠ Review before enabling</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="dashForceAI">
+            Always use AI for fields <span style="color:#B45309;font-size:12px;">uses API</span>
+          </label>
+        </div>
+        <p class="hint">Always-use-AI skips profile and cache shortcuts, so it is slower and uses API tokens.</p>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+      <div class="settings-panel form-row full-width" id="settings-panel-data" data-settings-panel="data" role="tabpanel" aria-labelledby="settings-tab-data" hidden>
+        <label class="form-label">Data Management</label>
+        <p class="hint">Permanently delete stored data. Cannot be undone.</p>
+        <div class="settings-danger-grid">
+          <button id="btn-clear-log-modal" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Fill Log</button>
+          <button id="btn-clear-corrections-modal" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Corrections</button>
+          <button id="btn-clear-platform-knowledge-modal" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Platform Knowledge</button>
+          <button id="btn-clear-registry-modal" class="btn btn-danger-outline btn-sm" data-icon="trash">Clear Registry</button>
+          <button id="btn-reset-job-counters-modal" class="btn btn-danger-outline btn-sm" data-icon="refresh">Reset Job Counters</button>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+      <div class="settings-panel form-row full-width" id="settings-panel-analyzer" data-settings-panel="analyzer" role="tabpanel" aria-labelledby="settings-tab-analyzer" hidden>
+        <label class="form-label" for="settingFitCardMode">Fit Card Mode</label>
+        <select id="settingFitCardMode" class="form-input" style="max-width:240px;">
+          <option value="detailed">Detailed — full 8-row breakdown</option>
+          <option value="compact">Compact — verdict + worst row only</option>
+        </select>
+        <p class="hint">Compact mode shows only the most relevant row, with an inline "Show details" affordance to expand per-popup-open.</p>
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">
+        <label class="form-label">Fit Card Display</label>
+        <div class="settings-check-list">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="settingShowFitVerdict" checked>
+            Show fit verdict (Strong / Good / Weak / Not a fit)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="settingShowFitBreakdown" checked>
+            Show per-parameter breakdown
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="settingShowMiniCard" checked>
+            Show floating mini-card on job pages
+          </label>
+        </div>
+        <p class="hint">Turn both off to hide the Fit Card entirely while keeping match data cached.</p>
+
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <label for="settingLocationRadiusMiles" style="display:flex;flex-direction:column;font-size:13px;">
+            <span><b>Location radius</b> (miles)</span>
+            <span class="hint" style="margin:2px 0 0 0;">A JD within this many miles of any candidate-preferred location still passes the Location parameter.</span>
+          </label>
+          <input type="number" id="settingLocationRadiusMiles" min="0" max="500" step="5" class="form-input" style="width:90px;">
+          <span style="font-size:13px;color:#6B6560;">miles</span>
+        </div>
+
+        <details style="margin-top:14px;">
+          <summary style="cursor:pointer;font-size:13px;font-weight:500;">Soft-parameter weights (advanced)</summary>
+          <p class="hint" style="margin-top:8px;">Hard parameters (visa, location, work mode, employment) are pass/fail and not weighted. Soft weights must sum to 100.</p>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;margin-top:10px;max-width:280px;">
+            <label for="weightYoE" style="font-size:13px;">Years of experience</label>
+            <div><input type="number" id="weightYoE" min="0" max="100" step="1" class="form-input" style="width:70px;display:inline-block;"> %</div>
+            <label for="weightTitle" style="font-size:13px;">Title</label>
+            <div><input type="number" id="weightTitle" min="0" max="100" step="1" class="form-input" style="width:70px;display:inline-block;"> %</div>
+            <label for="weightSkills" style="font-size:13px;">Skills</label>
+            <div><input type="number" id="weightSkills" min="0" max="100" step="1" class="form-input" style="width:70px;display:inline-block;"> %</div>
+            <label for="weightSalary" style="font-size:13px;">Salary</label>
+            <div><input type="number" id="weightSalary" min="0" max="100" step="1" class="form-input" style="width:70px;display:inline-block;"> %</div>
+          </div>
+          <p class="hint" id="weightSumWarn" style="color:#B45309;margin-top:8px;min-height:16px;"></p>
+        </details>
+      </div>
+      <div class="settings-panel form-row full-width" id="settings-panel-targets" data-settings-panel="targets" role="tabpanel" aria-labelledby="settings-tab-targets" hidden>
+        <label class="form-label" for="dailyDefaultTarget">Default Daily Target (submissions per client)</label>
+        <input type="number" id="dailyDefaultTarget" class="form-input" min="0" max="50" step="1" style="max-width:120px;">
+        <p class="hint">Default number of unique submissions per client per shift. Each client can override on their profile card.</p>
+
+        <label class="form-label" for="shiftCutoffHour" style="margin-top:12px;">Shift Cutoff Hour (0–23)</label>
+        <input type="number" id="shiftCutoffHour" class="form-input" min="0" max="23" step="1" style="max-width:120px;">
+        <p class="hint">A fill at any time before this hour is bucketed into the previous calendar day. Default 4 = "anything before 4 AM counts toward yesterday's shift".</p>
+      </div>
+      <div class="modal-actions">
+        <button id="settings-cancel" class="btn btn-ghost btn-md">Cancel</button>
+        <button id="btn-save-settings" class="btn btn-primary btn-md" data-icon="save">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="import-file-hidden" accept=".json" style="display:none;">
+
+  <script src="../lib/pdf.min.js"></script>
+  <script src="../storage.js"></script>
+  <script src="../learning-engine.js"></script>
+  <script src="../cv-parser.js"></script>
+  <script src="../jd-queue.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickApply — Test Application Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #444;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #333;
+            background: #fafafa;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            padding: 10px 12px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #6C5CE7;
+            background: #fff;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #aaa;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label,
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .file-upload {
+            border: 2px dashed #d0d5dd;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: #6C5CE7;
+            color: #6C5CE7;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #6C5CE7, #5B8DEF);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .notice {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 12px;
+        }
+
+        .hidden-label-test {
+            color: #888;
+            font-style: italic;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Acme Corp — Job Application</h1>
+        <p class="subtitle">Software Engineer — Full Stack (Remote)</p>
+
+        <form id="test-form"
+            onsubmit="event.preventDefault(); alert('Submit button was clicked — QuickApply should NEVER trigger this!');">
+
+            <!-- ═══ Personal Information ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Personal Information</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" name="first_name" id="first_name" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" name="last_name" id="last_name" placeholder="Enter last name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email_address">Email Address</label>
+                    <input type="email" name="email_address" id="email_address" placeholder="you@example.com">
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="tel" name="phone_number" id="phone_number" placeholder="+1-555-000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label for="preferred_name">Preferred Name</label>
+                        <input type="text" name="preferred_name" id="preferred_name" placeholder="Nickname">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Address ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Address</h2>
+                <div class="form-group">
+                    <label for="street_address">Street Address</label>
+                    <input type="text" name="street_address" id="street_address" placeholder="123 Main St, Apt 4B">
+                </div>
+                <div class="row-3">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" name="city" id="city" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" name="state" id="state" placeholder="State">
+                    </div>
+                    <div class="form-group">
+                        <label for="zip_code">Zip Code</label>
+                        <input type="text" name="zip_code" id="zip_code" placeholder="12345">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select name="country" id="country">
+                        <option value="">Select country</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="IN">India</option>
+                        <option value="PK">Pakistan</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ═══ Professional ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Professional Experience</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="job_title">Current Job Title</label>
+                        <input type="text" name="job_title" id="job_title" placeholder="Sr. Software Engineer">
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Current Company</label>
+                        <input type="text" name="company" id="company" placeholder="Company name">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="years_experience">Years of Experience</label>
+                        <input type="number" name="years_experience" id="years_experience" placeholder="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="linkedin_url">LinkedIn URL</label>
+                        <input type="url" name="linkedin_url" id="linkedin_url"
+                            placeholder="https://linkedin.com/in/...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="portfolio">Portfolio / Website</label>
+                    <input type="url" name="portfolio" id="portfolio" placeholder="https://...">
+                </div>
+            </div>
+
+            <!-- ═══ Education ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Education</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="degree">Highest Degree</label>
+                        <select name="degree" id="degree">
+                            <option value="">Select degree</option>
+                            <option value="high_school">High School</option>
+                            <option value="associates">Associate's</option>
+                            <option value="bachelors">Bachelor's</option>
+                            <option value="masters">Master's</option>
+                            <option value="doctorate">Doctorate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="university">University / School</label>
+                        <input type="text" name="university" id="university" placeholder="University name">
+                    </div>
+                </div>
+                <div class="row-3">
+                    <div class="form-group">
+                        <label for="major">Major / Field of Study</label>
+                        <input type="text" name="major" id="major" placeholder="Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label for="graduation_year">Graduation Year</label>
+                        <input type="text" name="graduation_year" id="graduation_year" placeholder="2020">
+                    </div>
+                    <div class="form-group">
+                        <label for="gpa">GPA</label>
+                        <input type="text" name="gpa" id="gpa" placeholder="3.8">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Skills ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Skills & Qualifications</h2>
+                <div class="form-group">
+                    <label for="skills">Skills (comma-separated)</label>
+                    <textarea name="skills" id="skills"
+                        placeholder="JavaScript, Python, React, Node.js, SQL, AWS..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="certifications">Certifications</label>
+                    <input type="text" name="certifications" id="certifications" placeholder="AWS Certified, PMP, ...">
+                </div>
+                <div class="form-group">
+                    <label for="languages">Languages Spoken</label>
+                    <input type="text" name="languages" id="languages" placeholder="English, Urdu, Arabic">
+                </div>
+            </div>
+
+            <!-- ═══ EEO / Demographics ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Equal Employment Opportunity (Voluntary)</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select name="gender" id="gender">
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="nonbinary">Non-binary</option>
+                            <option value="decline">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="race_ethnicity">Race / Ethnicity</label>
+                        <select name="race_ethnicity" id="race_ethnicity">
+                            <option value="">Select</option>
+                            <option value="white">White</option>
+                            <option value="black">Black or African American</option>
+                            <option value="hispanic">Hispanic or Latino</option>
+                            <option value="asian">Asian</option>
+                            <option value="native_american">Native American or Alaska Native</option>
+                            <option value="pacific_islander">Native Hawaiian or Pacific Islander</option>
+                            <option value="two_or_more">Two or More Races</option>
+                            <option value="decline">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Veteran Status</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="veteran_status" value="veteran"> I am a veteran</label>
+                        <label><input type="radio" name="veteran_status" value="not_veteran"> I am not a veteran</label>
+                        <label><input type="radio" name="veteran_status" value="decline"> Prefer not to say</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Disability Status</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="disability_status" value="yes"> Yes, I have a
+                            disability</label>
+                        <label><input type="radio" name="disability_status" value="no"> No</label>
+                        <label><input type="radio" name="disability_status" value="decline"> Prefer not to say</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Work Preferences ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Work Preferences</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="work_authorization">Work Authorization</label>
+                        <select name="work_authorization" id="work_authorization">
+                            <option value="">Select</option>
+                            <option value="citizen">US Citizen</option>
+                            <option value="green_card">Green Card</option>
+                            <option value="h1b">H1B Visa</option>
+                            <option value="ead">EAD</option>
+                            <option value="opt">OPT</option>
+                            <option value="sponsorship">Require Sponsorship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employment_type">Desired Employment Type</label>
+                        <select name="employment_type" id="employment_type">
+                            <option value="">Select</option>
+                            <option value="fulltime">Full-time</option>
+                            <option value="parttime">Part-time</option>
+                            <option value="contract">Contract</option>
+                            <option value="internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="salary_expectation">Expected Salary (USD)</label>
+                        <input type="text" name="salary_expectation" id="salary_expectation" placeholder="e.g. 120000">
+                    </div>
+                    <div class="form-group">
+                        <label for="notice_period">Notice Period</label>
+                        <input type="text" name="notice_period" id="notice_period" placeholder="e.g. 2 weeks">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Willing to Relocate?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="relocate" value="yes"> Yes</label>
+                        <label><input type="radio" name="relocate" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="remote_preference">Remote Preference</label>
+                    <select name="remote_preference" id="remote_preference">
+                        <option value="">Select</option>
+                        <option value="remote">Remote</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="onsite">On-site</option>
+                        <option value="flexible">Flexible</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ═══ Resume & Cover Letter ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Resume & Cover Letter</h2>
+                <div class="form-group">
+                    <label for="resume">Upload Resume</label>
+                    <input type="file" name="resume" id="resume" accept=".pdf,.docx">
+                </div>
+                <div class="form-group">
+                    <label for="cover_letter_file">Upload Cover Letter (Optional)</label>
+                    <input type="file" name="cover_letter_file" id="cover_letter_file" accept=".pdf,.docx">
+                </div>
+            </div>
+
+            <!-- ═══ Test: Tricky Fields ═══ -->
+            <div class="form-section">
+                <h2 class="section-title">Additional Information</h2>
+                <p class="hidden-label-test">ℹ️ These fields test edge cases for the auto-fill engine</p>
+                <br>
+                <div class="form-group">
+                    <!-- Field with only placeholder (no label, no name match) -->
+                    <input type="text" placeholder="Enter your GitHub profile URL" aria-label="GitHub URL">
+                </div>
+                <div class="form-group">
+                    <!-- Unrelated field — should NOT be filled -->
+                    <label for="referral_code">Referral Code</label>
+                    <input type="text" name="referral_code" id="referral_code" placeholder="If you have one">
+                </div>
+                <div class="form-group">
+                    <!-- Another unrelated field -->
+                    <label for="captcha">How did you hear about us?</label>
+                    <input type="text" name="how_heard" id="how_heard" placeholder="e.g. LinkedIn, Job Board">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Application</button>
+            <p class="notice">This is a test form. QuickApply should NEVER auto-click the submit button.</p>
+
+        </form>
+    </div>
+
+</body>
+
+</html>
